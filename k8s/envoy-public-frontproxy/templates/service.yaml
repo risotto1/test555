@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "envoy-public-frontproxy.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "envoy-public-frontproxy.name" . }}
+    helm.sh/chart: {{ include "envoy-public-frontproxy.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.httpPort }}
+      targetPort: http
+      protocol: TCP
+      name: http
+      nodePort: 30031
+    - port: {{ .Values.service.httpsPort }}
+      targetPort: https
+      protocol: TCP
+      name: https
+      nodePort: 30032
+    - port: {{ .Values.service.adminPort }}
+      targetPort: admin
+      protocol: TCP
+      name: admin
+      nodePort: 30033
+  selector:
+    app.kubernetes.io/name: {{ include "envoy-public-frontproxy.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

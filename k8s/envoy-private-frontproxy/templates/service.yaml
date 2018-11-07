@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "envoy-private-frontproxy.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "envoy-private-frontproxy.name" . }}
+    helm.sh/chart: {{ include "envoy-private-frontproxy.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  clusterIP: None
+  ports:
+    - port: {{ .Values.service.httpPort }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: {{ .Values.service.httpsPort }}
+      targetPort: https
+      protocol: TCP
+      name: https
+    - port: {{ .Values.service.adminPort }}
+      targetPort: admin
+      protocol: TCP
+      name: admin
+  selector:
+    app.kubernetes.io/name: {{ include "envoy-private-frontproxy.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

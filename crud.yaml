@@ -1,0 +1,72 @@
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: crud
+  labels:
+    app: crud
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: crud
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: crud
+    spec:
+      volumes:
+        - name: tls
+          secret:
+            secretName: crud-tls
+      containers:
+        - name: crud
+          image: risla8/crud
+          imagePullPolicy: Never
+          ports:
+            - name: grpc
+              containerPort: 50051
+              protocol: TCP
+          volumeMounts:
+            - name: tls
+              mountPath: /etc/certs
+          command:
+          - "/bin/sh"
+          - "-c"
+          - "./crud"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crud
+  labels:
+    app: crud
+spec:
+  selector:
+    app: crud
+  ports:
+    - name: http
+      targetPort: grpc
+      port: 80
+      protocol: TCP
+---
+apiVersion: voyager.appscode.com/v1beta1
+kind: Ingress
+metadata:
+  name: crud
+  annotations:
+    ingress.appscode.com/default-option: '{"dontlognull": "true"}'
+spec:
+  rules:
+    - tcp:
+        port: 80
+        backend:
+          serviceName: crud
+          servicePort: 80
+  loadBalancerSourceRanges:
+    - 10.0.0.0/8

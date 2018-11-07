@@ -1,0 +1,15 @@
+workspace:
+  base: /go
+  path: /go/src/github.com/GoingFast/test6
+pipeline:
+  gateway-to-hub:
+    image: plugins/docker
+    dockerfile: docker/Dockerfile.gateway
+    secrets: [ docker_username, docker_password ]
+    repo: risla8/gateway
+    tags:
+      - latest
+      - ${DRONE_COMMIT_SHA:0:8}
+    when:
+      event: [ push, tag, deployment ]
+      branch: [ master ]
