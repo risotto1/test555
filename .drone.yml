@@ -2,16 +2,16 @@ workspace:
   base: /go
   path: /go/src/github.com/GoingFast/test6
 pipeline:
-  gateway-to-hub:
-    image: plugins/docker
-    dockerfile: docker/Dockerfile.gateway
-    secrets: [ docker_username, docker_password ]
-    repo: risla8/gateway
-    tags:
-      - latest
-      - ${DRONE_COMMIT_SHA:0:8}
-    when:
-      event: [push, tag]
+  # gateway-to-hub:
+  #   image: plugins/docker
+  #   dockerfile: docker/Dockerfile.gateway
+  #   secrets: [ docker_username, docker_password ]
+  #   repo: risla8/gateway
+  #   tags:
+  #     - latest
+  #     - ${DRONE_COMMIT_SHA:0:8}
+  #   when:
+  #     event: [push, tag]
 
   crud-to-hub:
     image: plugins/docker
@@ -34,7 +34,7 @@ pipeline:
     namespace: staging
     secrets: [ api_server, kubernetes_token ]
     helm_command: -f ./k8s/charts/values-staging.yaml
-    values: crud.image.tag=${DRONE_COMMIT_SHA:0:8},gateway.imate.tag=${DRONE_COMMIT_SHA:0:8}
+    values: crud.image.tag=${DRONE_COMMIT_SHA:0:8}
     when:
       environment: staging
       event: deployment
