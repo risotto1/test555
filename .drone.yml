@@ -5,8 +5,8 @@ pipeline:
   echo:
     image: plugins/docker
     repo: busybox
-    commands:
-      - echo "2"
+    # commands:
+    #   - echo "2"
   # gateway-to-hub:
   #   image: plugins/docker
   #   dockerfile: docker/Dockerfile.gateway
