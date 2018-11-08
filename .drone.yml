@@ -2,18 +2,17 @@ workspace:
   base: /go
   path: /go/src/github.com/GoingFast/test6
 pipeline:
-    # commands:
-    #   - echo "2"
-  # gateway-to-hub:
-  #   image: plugins/docker
-  #   dockerfile: docker/Dockerfile.gateway
-  #   secrets: [ docker_username, docker_password ]
-  #   repo: risla8/gateway
-  #   tags:
-  #     - latest
-  #     - ${DRONE_COMMIT_SHA:0:8}
-  #   when:
-  #     event: [push, tag]
+  gateway-to-hub:
+    image: plugins/docker
+    dockerfile: docker/Dockerfile.gateway
+    secrets: [ docker_username, docker_password ]
+    repo: risla8/gateway
+    tags:
+      - latest
+      - ${DRONE_COMMIT_SHA:0:8}
+    when:
+      event: [push, tag]
+      branch: staging
 
   crud-to-hub:
     image: plugins/docker
@@ -36,11 +35,12 @@ pipeline:
     namespace: staging
     secrets: [ api_server, kubernetes_token ]
     values_files: ./k8s/charts/base.yaml,./k8s/charts/values-staging.yaml
-    values: crud.image.tag=${DRONE_COMMIT_SHA:0:8}
+    values: crud.image.tag=${DRONE_COMMIT_SHA:0:8},gateway.image.tag=${DRONE_COMMIT_SHA:0.8}
     when:
       environment: staging
       event: deployment
-
+---
+pipeline:
   deploy-prod:
     image: quay.io/ipedrazas/drone-helm
     skip_tls_verify: true
