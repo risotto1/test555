@@ -1,0 +1,18 @@
+tier: development
+
+crud:
+  replicaCount: 2
+  image:
+    tag: latest
+
+gateway:
+  replicaCount: 2
+  image:
+    tag: latest
+  ingress:
+    hosts:
+      - dev.gateway.local
+    tls:
+      - secretName: envoy-pb-fp-tls
+        hosts:
+          - dev.gateway.local

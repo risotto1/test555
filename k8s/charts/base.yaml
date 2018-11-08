@@ -1,0 +1,105 @@
+svc:
+  enabled: true
+
+voyager: true
+
+crud:
+  image:
+    repository: risla8/crud
+    pullPolicy: Always
+  service:
+    annotations: 
+    port: 80
+  ingress:
+    annotations:
+      ingress.appscode.com/default-option: '{"dontlognull": "true"}'
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+gateway:
+  image:
+    repository: risla8/gateway
+    pullPolicy: Always
+
+  service:
+    annotations: 
+    port: 80
+
+  ingress:
+    annotations:
+      ingress.appscode.com/default-option: '{"dontlognull": "true"}'
+  ingress:
+    annotations: 
+      ingress.appscode.com/type: NodePort
+      ingress.appscode.com/use-node-port: "true"
+      ingress.appscode.com/default-option: '{"dontlognull": "true", "log": "crit"}'
+      ingress.appscode.com/rewrite-target: "/"
+      ingress.appscode.com/max-connections: "100000"
+    path: /api/v1/
+    hosts:
+      - gateway.local
+    headerRules:
+      - X-Forwarded-Host $[base]
+    backendRules:
+      - "option httpchk GET /healthz"
+      - "http-check expect rstring (.)"
+      - "http-response set-header X-XSS-Protection 1;mode=block"
+      - "http-response set-header X-Frame-Options SAMEORIGIN"
+    tls:
+      - secretName: envoy-pb-fp-tls
+        hosts:
+          - gateway.local
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+envoy:
+  enabled: false
+  publicfrontproxy:
+    replicaCount: 1
+    image:
+      repository: envoyproxy/envoy-alpine
+      tag: latest
+      imagePullPolicy: IfNotPresent
+
+    config:
+      lb_policy: ROUND_ROBIN
+
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+    resources:
+      limits:
+        cpu: "1000m"
+      requests:
+        cpu: "100m"
+  privatefrontproxy:
+    replicaCount: 1
+    image:
+      repository: envoyproxy/envoy-alpine
+      tag: latest
+      imagePullPolicy: IfNotPresent
+
+    config:
+      lb_policy: ROUND_ROBIN
+
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+    resources:
+      limits:
+        cpu: "1000m"
+      requests:
+        cpu: "100m"
+    
+  gateway:
+    config:
+      lb_policy: ROUND_ROBIN
+
+  crud:
+    config:
+      lb_policy: ROUND_ROBIN

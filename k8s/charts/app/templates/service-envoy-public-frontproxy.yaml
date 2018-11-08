@@ -1,0 +1,32 @@
+{{- if .Values.envoy.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "svc.fullname" . }}-public-frontproxy
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "svc.name" . }}
+    helm.sh/chart: {{ include "svc.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    tier: {{ .Values.tier }}
+spec:
+  selector:
+    app.kubernetes.io/name: {{ include "svc.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    tier: {{ .Values.tier }}
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      nodePort: 30031
+    - name: https
+      port: 443
+      targetPort: https
+      nodePort: 30032
+    - name: admin
+      port: 9901
+      targetPort: admin
+      nodePort: 30033
+{{- end }}

@@ -10,6 +10,23 @@ pipeline:
     tags:
       - latest
       - ${DRONE_COMMIT_SHA:0:8}
-    when:
-      event: [ push, tag, deployment ]
-      branch: [ master ]
+
+  crud-to-hub:
+    image: plugins/docker
+    dockerfile: docker/Dockerfile.crud
+    secrets: [ docker_username, docker_password ]
+    repo: risla8/crud
+    tags:
+      - latest
+      - ${DRONE_COMMIT_SHA:0:8}
+
+  deploy:
+    image: quay.io/ipedrazas/drone-helm
+    skip_tls_verify: true
+    chart: ./k8s/charts/app
+    release: ${DRONE_BRANCH}
+    prefix: dev
+    debug: true
+    secrets: [ api_server, kubernetes_token ]
+
+  branches: dev
