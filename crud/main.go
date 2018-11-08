@@ -2,11 +2,9 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"database/sql"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -15,7 +13,6 @@ import (
 	pb "github.com/GoingFast/test6/protobuf"
 	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 var (
@@ -39,9 +36,9 @@ func newInmemRepo() *inmemRepo {
 	return &inmemRepo{
 		rs: map[string]*pb.Request{
 			"1": &pb.Request{Message: os.Getenv("HOSTNAME")},
-			// "2": &pb.Request{Message: "bar"},
-			// "3": &pb.Request{Message: "asd"},
-			// "4": &pb.Request{Message: "fgh"},
+			"2": &pb.Request{Message: "bar"},
+			"3": &pb.Request{Message: "asd"},
+			"4": &pb.Request{Message: "fgh"},
 		},
 	}
 }
@@ -150,21 +147,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var srv *grpc.Server
-	if os.Getenv("TLS") != "" {
-		BackendCert, _ := ioutil.ReadFile("/etc/certs/tls.crt")
-		BackendKey, _ := ioutil.ReadFile("/etc/certs/tls.key")
-
-		cert, err := tls.X509KeyPair(BackendCert, BackendKey)
-		if err != nil {
-			log.Fatalf("failed to parse certificate: %v", err)
-		}
-		creds := credentials.NewServerTLSFromCert(&cert)
-		srv = grpc.NewServer(grpc.Creds(creds))
-		fmt.Println("tls")
-	} else {
-		srv = grpc.NewServer()
-	}
+	srv := grpc.NewServer()
 	svc := newService(*sqlMode, SQLConn{
 		SQLAddr: *sqlAddr,
 		SQLUser: *sqlUsername,

@@ -1,0 +1,18 @@
+tier: staging
+
+crud:
+  replicaCount: 2
+  image:
+    tag: latest
+
+gateway:
+  replicaCount: 2
+  image:
+    tag: latest
+  ingress:
+    hosts:
+      - staging.gateway.local
+    tls:
+      - secretName: envoy-pb-fp-tls
+        hosts:
+          - staging.gateway.local

@@ -2,14 +2,14 @@ workspace:
   base: /go
   path: /go/src/github.com/GoingFast/test6
 pipeline:
-  # gateway-to-hub:
-  #   image: plugins/docker
-  #   dockerfile: docker/Dockerfile.gateway
-  #   secrets: [ docker_username, docker_password ]
-  #   repo: risla8/gateway
-  #   tags:
-  #     - latest
-  #     - ${DRONE_COMMIT_SHA:0:8}
+  gateway-to-hub:
+    image: plugins/docker
+    dockerfile: docker/Dockerfile.gateway
+    secrets: [ docker_username, docker_password ]
+    repo: risla8/gateway
+    tags:
+      - latest
+      - ${DRONE_COMMIT_SHA:0:8}
 
   crud-to-hub:
     image: plugins/docker
@@ -20,15 +20,28 @@ pipeline:
       - latest
       - ${DRONE_COMMIT_SHA:0:8}
 
-  deploy:
+  deploy-staging:
     image: quay.io/ipedrazas/drone-helm
     skip_tls_verify: true
     chart: ./k8s/charts/app
     release: ${DRONE_BRANCH}
-    prefix: dev
-    debug: true
-    namespace: dev
+    prefix: staging
+    namespace: staging
     secrets: [ api_server, kubernetes_token ]
+    values: crud.image.tag=${DRONE_COMMIT_SHA:0:8},gateway.imate.tag=${DRONE_COMMIT_SHA:0:8}
     when:
-      environment: dev
+      environment: staging
+      event: deployment
+
+  deploy-prod:
+    image: quay.io/ipedrazas/drone-helm
+    skip_tls_verify: true
+    chart: ./k8s/charts/app
+    release: ${DRONE_BRANCH}
+    prefix: prod
+    namespace: prod
+    secrets: [ api_server, kubernetes_token ]
+    values: crud.image.tag=${DRONE_COMMIT_SHA:0:8},gateway.imate.tag=${DRONE_COMMIT_SHA:0:8}
+    when:
+      environment: prod
       event: deployment

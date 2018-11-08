@@ -12,7 +12,6 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 type conns struct {
@@ -28,20 +27,7 @@ func fallbackEnv(env, fallback string) string {
 }
 
 func newConns() conns {
-	var (
-		conn *grpc.ClientConn
-		err  error
-	)
-	if os.Getenv("TLS") != "" {
-		creds, err := credentials.NewClientTLSFromFile("/home/certs/tls.crt", "")
-		if err != nil {
-			log.Fatal(err)
-		}
-		conn, err = grpc.Dial(fallbackEnv("DIAL_ADDR", ":50051"), grpc.WithTransportCredentials(creds))
-
-	} else {
-		conn, err = grpc.Dial(fallbackEnv("DIAL_ADDR", ":50051"), grpc.WithInsecure())
-	}
+	conn, err := grpc.Dial(fallbackEnv("DIAL_ADDR", ":50051"), grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -63,8 +49,8 @@ func JSON(w http.ResponseWriter, code int, v interface{}) {
 
 func (s service) Read() http.HandlerFunc {
 	type res struct {
-		Err string `json:"err,omitempty"`
-		Msg string `json:"msg,omitempty"`
+		Err string        `json:"err,omitempty"`
+		Msg []*pb.Request `json:"msg,omitempty"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		resp, err := s.c.crud.Read(r.Context(), &empty.Empty{})
@@ -77,7 +63,8 @@ func (s service) Read() http.HandlerFunc {
 			return
 		}
 
-		JSON(w, 200, res{Msg: fmt.Sprintf("server hostname: %s\ngateway hostname: %s", resp.Data, os.Getenv("HOSTNAME"))})
+		resp.Data = append(resp.Data, &pb.Request{Message: fmt.Sprintf("%s", os.Getenv("HOSTNAME"))})
+		JSON(w, 200, res{Msg: resp.Data})
 	}
 }
 
@@ -87,7 +74,6 @@ func newService() service {
 func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Heartbeat("/healthz"))
-
 	svc := newService()
 	r.Get("/read", svc.Read())
 	http.ListenAndServe(fallbackEnv("GATEWAY_LISTEN_ADDR", ":8081"), r)
