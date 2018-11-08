@@ -11,14 +11,14 @@ pipeline:
   #     - latest
   #     - ${DRONE_COMMIT_SHA:0:8}
 
-  # crud-to-hub:
-  #   image: plugins/docker
-  #   dockerfile: docker/Dockerfile.crud
-  #   secrets: [ docker_username, docker_password ]
-  #   repo: risla8/crud
-  #   tags:
-  #     - latest
-  #     - ${DRONE_COMMIT_SHA:0:8}
+  crud-to-hub:
+    image: plugins/docker
+    dockerfile: docker/Dockerfile.crud
+    secrets: [ docker_username, docker_password ]
+    repo: risla8/crud
+    tags:
+      - latest
+      - ${DRONE_COMMIT_SHA:0:8}
 
   deploy:
     image: quay.io/ipedrazas/drone-helm
@@ -29,3 +29,6 @@ pipeline:
     debug: true
     namespace: dev
     secrets: [ api_server, kubernetes_token ]
+    when:
+      environment: dev
+      event: deployment
