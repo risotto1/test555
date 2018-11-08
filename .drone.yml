@@ -2,6 +2,11 @@ workspace:
   base: /go
   path: /go/src/github.com/GoingFast/test6
 pipeline:
+  echo:
+    image: plugins/docker
+    repo: busybox
+    commands:
+      - echo "2"
   # gateway-to-hub:
   #   image: plugins/docker
   #   dockerfile: docker/Dockerfile.gateway
@@ -23,8 +28,8 @@ pipeline:
   #     - ${DRONE_COMMIT_SHA:0:8}
   #   when:
   #     event: [push, tag]
----
-pipeline:
+# ---
+# pipeline:
   deploy-staging:
     image: quay.io/ipedrazas/drone-helm
     skip_tls_verify: true
