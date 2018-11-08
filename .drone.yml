@@ -25,8 +25,8 @@ pipeline:
       - ${DRONE_COMMIT_SHA:0:8}
     when:
       event: [push, tag]
-# ---
-# pipeline:
+      branch: staging
+
   deploy-staging:
     image: quay.io/ipedrazas/drone-helm
     skip_tls_verify: true
@@ -35,8 +35,8 @@ pipeline:
     prefix: staging
     namespace: staging
     secrets: [ api_server, kubernetes_token ]
-    # helm_command: -f ./k8s/charts/values-staging.yaml
-    # values: crud.image.tag=${DRONE_COMMIT_SHA:0:8}
+    helm_command: -f ./k8s/charts/values-staging.yaml
+    values: crud.image.tag=${DRONE_COMMIT_SHA:0:8}
     when:
       environment: staging
       event: deployment
