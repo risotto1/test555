@@ -2,9 +2,6 @@ workspace:
   base: /go
   path: /go/src/github.com/GoingFast/test6
 pipeline:
-  echo:
-    image: plugins/docker
-    repo: busybox
     # commands:
     #   - echo "2"
   # gateway-to-hub:
@@ -18,16 +15,16 @@ pipeline:
   #   when:
   #     event: [push, tag]
 
-  # crud-to-hub:
-  #   image: plugins/docker
-  #   dockerfile: docker/Dockerfile.crud
-  #   secrets: [ docker_username, docker_password ]
-  #   repo: risla8/crud
-  #   tags:
-  #     - latest
-  #     - ${DRONE_COMMIT_SHA:0:8}
-  #   when:
-  #     event: [push, tag]
+  crud-to-hub:
+    image: plugins/docker
+    dockerfile: docker/Dockerfile.crud
+    secrets: [ docker_username, docker_password ]
+    repo: risla8/crud
+    tags:
+      - latest
+      - ${DRONE_COMMIT_SHA:0:8}
+    when:
+      event: [push, tag]
 # ---
 # pipeline:
   deploy-staging:
