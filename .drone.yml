@@ -2,23 +2,23 @@ workspace:
   base: /go
   path: /go/src/github.com/GoingFast/test6
 pipeline:
-  gateway-to-hub:
-    image: plugins/docker
-    dockerfile: docker/Dockerfile.gateway
-    secrets: [ docker_username, docker_password ]
-    repo: risla8/gateway
-    tags:
-      - latest
-      - ${DRONE_COMMIT_SHA:0:8}
+  # gateway-to-hub:
+  #   image: plugins/docker
+  #   dockerfile: docker/Dockerfile.gateway
+  #   secrets: [ docker_username, docker_password ]
+  #   repo: risla8/gateway
+  #   tags:
+  #     - latest
+  #     - ${DRONE_COMMIT_SHA:0:8}
 
-  crud-to-hub:
-    image: plugins/docker
-    dockerfile: docker/Dockerfile.crud
-    secrets: [ docker_username, docker_password ]
-    repo: risla8/crud
-    tags:
-      - latest
-      - ${DRONE_COMMIT_SHA:0:8}
+  # crud-to-hub:
+  #   image: plugins/docker
+  #   dockerfile: docker/Dockerfile.crud
+  #   secrets: [ docker_username, docker_password ]
+  #   repo: risla8/crud
+  #   tags:
+  #     - latest
+  #     - ${DRONE_COMMIT_SHA:0:8}
 
   deploy:
     image: quay.io/ipedrazas/drone-helm
@@ -27,4 +27,5 @@ pipeline:
     release: ${DRONE_BRANCH}
     prefix: dev
     debug: true
+    namespace: dev
     secrets: [ api_server, kubernetes_token ]
