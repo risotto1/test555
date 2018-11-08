@@ -28,5 +28,3 @@ pipeline:
     prefix: dev
     debug: true
     secrets: [ api_server, kubernetes_token ]
-
-  branches: dev
