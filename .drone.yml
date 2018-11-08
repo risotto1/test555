@@ -35,7 +35,7 @@ pipeline:
     prefix: staging
     namespace: staging
     secrets: [ api_server, kubernetes_token ]
-    helm_command: -f ./k8s/charts/values-staging.yaml
+    values_files: ./k8s/charts/base.yaml,./k8s/charts/values-staging.yaml
     values: crud.image.tag=${DRONE_COMMIT_SHA:0:8}
     when:
       environment: staging
