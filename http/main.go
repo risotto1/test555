@@ -63,7 +63,7 @@ func (s service) Read() http.HandlerFunc {
 			return
 		}
 
-		resp.Data = append(resp.Data, &pb.Request{Message: fmt.Sprintf("%s", os.Getenv("HOSTNAME"))})
+		resp.Data = append(resp.Data, &pb.Request{Message: fmt.Sprintf("%v", os.Getenv("HOSTNAME"))})
 		JSON(w, 200, res{Msg: resp.Data})
 	}
 }
