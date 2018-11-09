@@ -1,0 +1,68 @@
+{{- if .Values.envoy.enabled }}
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ include "svc.fullname" . }}-private-frontproxy
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "svc.name" . }}
+    helm.sh/chart: {{ include "svc.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    tier: {{ .Values.tier }}
+spec:
+  replicas: {{ .Values.envoy.privatefrontproxy.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "svc.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      tier: {{ .Values.tier }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "svc.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        tier: {{ .Values.tier }}
+    spec:
+      volumes:
+        - name: envoy-pv-fp-config
+          configMap:
+            name: envoy-pv-fp-config
+      containers:
+        - name: {{ include "svc.fullname" . }}-private-frontproxy
+          image: "{{ .Values.envoy.privatefrontproxy.image.repository }}:{{ .Values.envoy.privatefrontproxy.image.tag }}"
+          imagePullPolicy: {{ .Values.envoy.privatefrontproxy.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+            - name: https
+              containerPort: 443
+              protocol: TCP
+            - name: admin
+              containerPort: 9901
+              protocol: TCP
+            - name: dev
+              containerPort: 27015
+              protocol: TCP
+          volumeMounts:
+            - name: envoy-pv-fp-config
+              mountPath: "/home/envoy.yaml"
+              subPath: "envoy.yaml"
+          command: ["/usr/local/bin/envoy"]
+          args: ["-c /home/envoy.yaml"]
+          resources:
+{{ toYaml .Values.envoy.privatefrontproxy.resources | indent 12 }}
+    {{- with .Values.envoy.privatefrontproxy.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.envoy.privatefrontproxy.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.envoy.privatefrontproxy.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+{{- end }}
