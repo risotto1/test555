@@ -75,12 +75,13 @@ server:
   ## ref: http://readme.drone.io/admin/installation-reference
   ##
   env:
+    DRONE_DATABASE_DRIVER: "sqlite3"
+    DRONE_DATABASE_DATASOURCE: "/var/lib/drone/drone.sqlite"
     DRONE_GITLAB: "true"
     DRONE_HOST: "http://vorax.serveo.net"
     DRONE_GITLAB_CLIENT: "2b00fbdfd870256157d53abd99efedb56bce755bfdf0d589cbbf8c654dd8a50f"
     DRONE_GITLAB_SECRET: "e447e15cccb67737e1a99acc4aef2137c52b4dd94fdab9a7945d33f816de68dc"
     DRONE_GITLAB_URL: "https://gitlab.com"
-    # DRONE_SECRET: "wKyhKLKdP8jhN8g26ggT"
     DRONE_PROVIDER: "gitlab"
     DRONE_OPEN: "true"
     DRONE_DEBUG: "false"

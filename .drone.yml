@@ -41,6 +41,18 @@ pipeline:
       event: deployment
 ---
 pipeline:
+  gateway-to-hub:
+    image: plugins/docker
+    dockerfile: docker/Dockerfile.gateway
+    secrets: [ docker_username, docker_password ]
+    repo: risla8/gateway
+    tags:
+      - latest
+      - ${DRONE_COMMIT_SHA:0:8}
+    when:
+      event: [pull_request]
+      branch: staging
+pipeline:
   deploy-prod:
     image: quay.io/ipedrazas/drone-helm
     skip_tls_verify: true
