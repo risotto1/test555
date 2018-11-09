@@ -51,7 +51,7 @@ pipeline:
       - ${DRONE_COMMIT_SHA:0:8}
     when:
       event: [pull_request]
-      branch: staging
+      # branch: staging
 pipeline:
   deploy-prod:
     image: quay.io/ipedrazas/drone-helm
