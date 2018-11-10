@@ -10,7 +10,7 @@ pipeline {
 	docker { image "golang:alpine" }
       }
       steps {
-	sh "go tests ./..."
+	sh "go test ./..."
       }
     }
     stage("Build") {
