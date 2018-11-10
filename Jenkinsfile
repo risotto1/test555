@@ -1,7 +1,13 @@
 pipeline {
   agent any
+
   options {
     timestamps()
+  }
+
+  environment {
+    GOPATH = ${WORKSPACE}
+    PATH = ${GOPATH}:${PATH}
   }
   
   stages {
