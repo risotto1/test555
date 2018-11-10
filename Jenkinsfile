@@ -6,7 +6,7 @@ pipeline {
   }
 
   environment {
-    GOPATH = "$WORKSPACE"
+    GOCACHE = "$WORKSPACE"
   }
 
   stages {
@@ -16,6 +16,7 @@ pipeline {
       }
       steps {
 	sh "ls -la"
+	sh "mkdir $GOCACHE/.cache"
 	sh "go test ./... -mod=vendor"
       }
     }
