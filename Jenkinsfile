@@ -19,7 +19,6 @@ pipeline {
       }
       steps {
 	sh "ls -la"
-	sh "mkdir $WORKSPACE/.cache"
 	sh "go test ./... -mod=vendor"
       }
     }
