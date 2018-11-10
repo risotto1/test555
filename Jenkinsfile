@@ -1,0 +1,26 @@
+pipeline {
+  agent any
+  options {
+    timestamps()
+  }
+  
+  stages {
+    stage("Tests") {
+      agent {
+	docker { image "golang:alpine" }
+      }
+      steps {
+	sh "go tests ./..."
+      }
+    }
+    stage("Build") {
+      steps {
+	sh """
+          docker build -t risla8/gateway . -f deployments/docker/Dockerfile.client
+          docker tag risla8/gateway risla8/gateway:${GIT_COMMIT:0:8}
+          docker push risla8/gateway:${GIT_COMMIT:0:8}
+	"""
+      }
+    }
+  }
+}
