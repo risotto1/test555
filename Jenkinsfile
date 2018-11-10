@@ -5,6 +5,10 @@ pipeline {
     timestamps()
   }
 
+  environment {
+    GOPATH = "$WORKSPACE"
+  }
+
   stages {
     stage("Tests") {
       agent {
