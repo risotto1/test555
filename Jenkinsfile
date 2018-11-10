@@ -5,11 +5,6 @@ pipeline {
     timestamps()
   }
 
-  environment {
-    GOPATH = $WORKSPACE
-    PATH = $GOPATH:$PATH
-  }
-  
   stages {
     stage("Tests") {
       agent {
@@ -22,6 +17,7 @@ pipeline {
     stage("Build") {
       steps {
 	sh "printenv"
+	sh "ln -sf ${WORKSPACE} ${GOPATH}/src/GoingFast/test6"
 	sh """
           docker build -t risla8/gateway . -f deployments/docker/Dockerfile.client
           docker tag risla8/gateway risla8/gateway:${GIT_COMMIT}
