@@ -15,6 +15,7 @@ pipeline {
 	docker { image "golang:alpine" }
       }
       steps {
+	sh "mkdir -p $GOPATH/src/GoingFast"
 	sh "ln -sf ${WORKSPACE} ${GOPATH}/src/GoingFast/test6"
 	sh "printenv"
 	sh "go test ./..."
