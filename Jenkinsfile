@@ -6,8 +6,8 @@ pipeline {
   }
 
   environment {
-    GOPATH = ${WORKSPACE}
-    PATH = ${GOPATH}:${PATH}
+    GOPATH = $WORKSPACE
+    PATH = $GOPATH:$PATH
   }
   
   stages {
