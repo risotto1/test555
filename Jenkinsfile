@@ -18,6 +18,7 @@ pipeline {
 	sh "mkdir -p $GOPATH/src/github.com/GoingFast"
 	sh "ln -sf ${WORKSPACE} ${GOPATH}/src/github.com/GoingFast/test6"
 	sh "printenv"
+	sh "ls -la"
 	sh "go test ./..."
       }
     }
