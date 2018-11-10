@@ -9,10 +9,6 @@ pipeline {
     GOCACHE = "$WORKSPACE"
   }
 
-  triggers {
-    pollSCM("")
-  }
-
   stages {
     stage("Tests") {
       agent {
