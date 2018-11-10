@@ -1,26 +1,15 @@
-package main
+package server
 
 import (
 	"context"
 	"database/sql"
-	"flag"
 	"fmt"
 	"log"
-	"net"
 	"os"
 	"sync"
 
 	pb "github.com/GoingFast/test6/protobuf"
 	"github.com/golang/protobuf/ptypes/empty"
-	"google.golang.org/grpc"
-)
-
-var (
-	sqlMode     = flag.Bool("sql", false, "use PostgresSQL repository")
-	sqlAddr     = flag.String("sqladdr", "", "PostgresSQL address")
-	sqlDatabase = flag.String("sqldb", "", "PostgresSQL database")
-	sqlUsername = flag.String("sqluser", "", "PostgresSQL username")
-	sqlPassword = flag.String("sqlpass", "", "PostgresSQL password")
 )
 
 type repository interface {
@@ -118,7 +107,7 @@ func db(s SQLConn) *sql.DB {
 	return conn
 }
 
-func newService(sql bool, s SQLConn) service {
+func NewService(sql bool, s SQLConn) service {
 	if sql {
 		return service{newSqlRepo(db(s))}
 	}
@@ -131,29 +120,4 @@ func (s service) Read(ctx context.Context, _ *empty.Empty) (*pb.ReadResponse, er
 		return nil, err
 	}
 	return &pb.ReadResponse{Data: r}, nil
-}
-
-func fallbackEnv(env, fallback string) string {
-	e := os.Getenv(env)
-	if e == "" {
-		return fallback
-	}
-	return e
-}
-
-func main() {
-	flag.Parse()
-	ln, err := net.Listen("tcp", fallbackEnv("LISTEN_ADDR", ":50051"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	srv := grpc.NewServer()
-	svc := newService(*sqlMode, SQLConn{
-		SQLAddr: *sqlAddr,
-		SQLUser: *sqlUsername,
-		SQLPass: *sqlPassword,
-		SQLDB:   *sqlDatabase,
-	})
-	pb.RegisterCRUDServiceServer(srv, svc)
-	srv.Serve(ln)
 }

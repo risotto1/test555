@@ -1,8 +1,0 @@
-FROM golang:alpine AS builder
-COPY . /go/src/github.com/GoingFast/test6
-WORKDIR /go/src/github.com/GoingFast/test6/crud
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o crud
-
-FROM alpine
-COPY --from=builder /go/src/github.com/GoingFast/test6/crud .
-ENTRYPOINT ["./crud"]

@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"encoding/json"
@@ -7,9 +7,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/GoingFast/test6/pkg/env"
 	pb "github.com/GoingFast/test6/protobuf"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
 	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
 )
@@ -18,16 +17,8 @@ type conns struct {
 	crud pb.CRUDServiceClient
 }
 
-func fallbackEnv(env, fallback string) string {
-	e := os.Getenv(env)
-	if e == "" {
-		return fallback
-	}
-	return e
-}
-
 func newConns() conns {
-	conn, err := grpc.Dial(fallbackEnv("DIAL_ADDR", ":50051"), grpc.WithInsecure())
+	conn, err := grpc.Dial(env.FallbackEnv("DIAL_ADDR", ":50051"), grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -39,6 +30,10 @@ func newConns() conns {
 
 type service struct {
 	c conns
+}
+
+func NewService() service {
+	return service{newConns()}
 }
 
 func JSON(w http.ResponseWriter, code int, v interface{}) {
@@ -66,15 +61,4 @@ func (s service) Read() http.HandlerFunc {
 		resp.Data = append(resp.Data, &pb.Request{Message: fmt.Sprintf("%v", os.Getenv("HOSTNAME"))})
 		JSON(w, 200, res{Msg: resp.Data})
 	}
-}
-
-func newService() service {
-	return service{newConns()}
-}
-func main() {
-	r := chi.NewRouter()
-	r.Use(middleware.Heartbeat("/healthz"))
-	svc := newService()
-	r.Get("/read", svc.Read())
-	http.ListenAndServe(fallbackEnv("GATEWAY_LISTEN_ADDR", ":8081"), r)
 }

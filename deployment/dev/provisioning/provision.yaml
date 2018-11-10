@@ -1,0 +1,67 @@
+---
+- name: Provision
+  hosts: all
+  become: yes
+  gather_facts: False
+
+  pre_tasks:
+    - name: Ensure python is installed
+      raw: test -e /usr/bin/python || (apt -y update && apt-get install -y python-minimal)
+      changed_When: false
+
+  tasks:
+    - name: Increase ulimit for Docker
+      pam_limits:
+        domain: vagrant
+        limit_type: "-"
+        limit_item: "nofile"
+        value: 65536
+
+    - name: Reload system settings
+      raw: sysctl --system
+
+    - name: Upgrade all packages
+      apt:
+        upgrade: dist
+
+    - name: Install required packages
+      package:
+        name: "{{item}}"
+        state: present
+      with_items:
+        - docker.io
+        - systemd
+
+    - name: Add user to docker group
+      user:
+        name: vagrant
+        groups: docker
+        append: yes
+
+    - name: Add apt key
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: Setup sources 
+      apt_repository:
+        repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: kubernetes.list
+        update_cache: yes
+
+    - name: Install kubectl
+      package:
+        name: "{{item}}"
+      with_items:
+        - apt-transport-https
+        - kubectl
+    
+    - name: Install minikube
+      shell: curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.30.0/minikube-linux-amd64 && chmod +x minikube && sudo cp minikube /usr/local/bin/ && rm minikube
+
+    - name: Copy kube configs to VM
+      copy:
+        src: ../../k8s
+        dest: /home/vagrant/configs
+        owner: vagrant

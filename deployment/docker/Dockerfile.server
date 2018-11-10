@@ -1,0 +1,8 @@
+FROM golang:alpine AS builder
+COPY . /go/src/github.com/GoingFast/test6
+WORKDIR /go/src/github.com/GoingFast/test6/cmd/server
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o server
+
+FROM alpine
+COPY --from=builder /go/src/github.com/GoingFast/test6/cmd/server .
+ENTRYPOINT ["./server"]

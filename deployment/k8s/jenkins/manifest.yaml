@@ -1,0 +1,153 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins
+  namespace: default
+automountServiceAccountToken: true
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: jenkins
+  namespace: default
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods/portforward
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: jenkins
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: jenkins
+    namespace: default
+roleRef:
+  kind: Role
+  name: jenkins
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubectl-context
+data:
+  context.sh: |
+    #!/bin/sh
+    kubectl config set-credentials jenkins --token=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+    kubectl config set-cluster minikube --server="https://192.168.99.100:8443" --certificate-authority="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    kubectl config set-context jenkins-minikube --cluster=minikube --user=jenkins --namespace=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+    kubectl config use-context jenkins-minikube
+    chmod 755 ~/.kube/config
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: jenkins
+  labels:
+    app: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      volumes:
+        - name: jenkins-home
+          persistentVolumeClaim:
+            claimName: jenkins-claim
+        - name: docker
+          hostPath: 
+            path: /var/run/docker.sock
+        - name: kubeconfig
+          emptyDir: {}
+        - name: kubectl-context
+          configMap:
+            name: kubectl-context
+      serviceAccountName: jenkins
+      initContainers:
+        - name: kubectl-config
+          image: lachlanevenson/k8s-kubectl:v1.12.2
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh"]
+          args: ["/context.sh"]
+          volumeMounts:
+            - name: kubeconfig
+              mountPath: "/root/.kube"
+            - name: kubectl-context
+              mountPath: "/context.sh"
+              subPath: "context.sh"
+      containers:
+        - name: jenkins
+          image: risla8/jenkins
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: jnlp
+              containerPort: 50000
+          volumeMounts:
+            - name: jenkins-home
+              mountPath: /var/jenkins_home
+            - name: docker
+              mountPath: /var/run/docker.sock
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins
+  labels:
+    app: jenkins
+spec:
+  selector:
+    app: jenkins
+  type: NodePort
+  ports:
+    - name: http
+      targetPort: http
+      port: 8080
+      nodePort: 30034
+    - name: jnlp
+      targetPort: jnlp
+      port: 50000
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: jenkins
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data/jenkins"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jenkins-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
