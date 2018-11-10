@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"testing"
 
 	pb "github.com/GoingFast/test6/protobuf"
 	"github.com/golang/protobuf/ptypes/empty"
