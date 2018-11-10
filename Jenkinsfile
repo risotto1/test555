@@ -9,7 +9,7 @@ pipeline {
     GOCACHE = "$WORKSPACE"
   }
 
-  trigger {
+  triggers {
     pollSCM("")
   }
 
