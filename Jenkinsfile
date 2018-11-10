@@ -24,11 +24,14 @@ pipeline {
     }
     stage("Build") {
       steps {
-	sh """
-          docker build -t risla8/gateway . -f deployment/docker/Dockerfile.client
-          docker tag risla8/gateway risla8/gateway:${GIT_COMMIT}
-          docker push risla8/gateway:${GIT_COMMIT}
-	"""
+	def dockerfileClient = "Dockerfile.client"
+	def clientImage = docker.build("risla8/gateway:${GIT_COMMIT}", "-f ${dockerfileClient} ./deployment/docker/")
+	clientImage.push()
+	// sh """
+        //   docker build -t risla8/gateway . -f deployment/docker/Dockerfile.client
+        //   docker tag risla8/gateway risla8/gateway:${GIT_COMMIT}
+        //   docker push risla8/gateway:${GIT_COMMIT}
+	// """
       }
     }
   }
