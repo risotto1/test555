@@ -21,6 +21,7 @@ pipeline {
 	sh "go test ./... -mod=vendor"
       }
     }
+
     stage("Build") {
       steps {
 	script {
@@ -35,9 +36,17 @@ pipeline {
 	}
       }
     }
-    stage("Deploy to staging") {
+
+    stage("Deploy staging") {
       steps {
 	sh "helm upgrade --install staging -f ./deployment/k8s/base.yaml -f ./deployment/k8s/values-staging.yaml ./deployment/k8s/app --set crud.image.tag=${GIT_COMMIT} --set gateway.image.tag=${GIT_COMMIT}"
+      }
+    }
+
+    stage("Deploy production") {
+      steps {
+	milestone label: "Deploy to production?", ordinal: Integer.parseInt(env.BUILD_ID)
+	echo "mm"
       }
     }
   }
