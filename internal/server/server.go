@@ -26,7 +26,7 @@ func newInmemRepo() *inmemRepo {
 		rs: map[string]*pb.Request{
 			"1": &pb.Request{Message: os.Getenv("HOSTNAME")},
 			"2": &pb.Request{Message: "ba"},
-			"3": &pb.Request{Message: "asdf"},
+			"3": &pb.Request{Message: "addf"},
 			"4": &pb.Request{Message: "fgh"},
 		},
 	}
