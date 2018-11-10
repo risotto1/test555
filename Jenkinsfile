@@ -10,7 +10,7 @@ pipeline {
   }
 
   stages {
-    stage("Tests") {
+    stage("Test") {
       agent {
 	docker { image "golang:alpine" }
       }
