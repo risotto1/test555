@@ -37,16 +37,23 @@ pipeline {
       }
     }
 
-    stage("Deploy staging") {
+    stage("Deploying to staging") {
       steps {
 	sh "helm upgrade --install staging -f ./deployment/k8s/base.yaml -f ./deployment/k8s/values-staging.yaml ./deployment/k8s/app --set crud.image.tag=${GIT_COMMIT} --set gateway.image.tag=${GIT_COMMIT}"
       }
     }
 
-    stage("Deploy production") {
+    stage("Deploy to production input") {
       steps {
-	milestone label: "Deploy to production?", ordinal: Integer.parseInt(env.BUILD_ID)
-	echo "mm"
+	milestone(1)
+	input "Deploy to production?"
+	milestone(2)
+      }
+    }
+
+    stage("Deploying to production") {
+      steps {
+	echo "done"
       }
     }
   }
