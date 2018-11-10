@@ -1,7 +1,9 @@
-FROM jenkins/jenkins
+FROM jenkins/jenkins:2.138.3
+
 USER root
 
 ENV KUBECTL_VERSION=v1.12.2
+ENV HELM_VERSION=v2.11.0
 
 RUN apt-get update  \
     && apt-get -y install \
@@ -26,5 +28,10 @@ RUN curl -L https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_
 
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
+
+RUN curl -L https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz -o helm.tar.gz \
+    && tar -xvf helm.tar.gz \
+    && cp linux-amd64/helm /usr/local/bin/helm \
+    && chmod +x /usr/local/bin/helm
 
 USER jenkins

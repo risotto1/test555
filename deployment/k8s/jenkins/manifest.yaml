@@ -12,18 +12,23 @@ metadata:
   name: jenkins
   namespace: default
 rules:
-  - apiGroups:
-      - ""
-    resources:
-      - pods/portforward
-    verbs:
-      - create
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-    verbs:
-      - list
+  - apiGroups: ["extensions", ""]
+    resources: ["deployments", "pods"]
+    verbs: ["get", "list", "patch", "update", "watch", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: jenkins
+  namespace: kube-system
+subjects:
+  - kind: ServiceAccount
+    name: jenkins
+    namespace: default
+roleRef:
+  kind: Role
+  name: jenkins
+  apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
