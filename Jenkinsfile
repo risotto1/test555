@@ -30,6 +30,7 @@ pipeline {
 	  def clientImage = docker.build("risla8/gateway:${GIT_COMMIT}", ". -f ./deployment/docker/Dockerfile.client")
 	  docker.withRegistry("https://index.docker.io/v1/", "9f00e117-89d7-4ec6-afb9-d4c415878fa2") {
 	    clientImage.push()		  
+	    clientImage.push("latest")		  
 	  }
 	}
 	// sh """
