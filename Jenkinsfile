@@ -26,8 +26,7 @@ pipeline {
       steps {
 	echo "starting build"
 	script {
-	  def dockerfileClient = "Dockerfile.client"
-	  def clientImage = docker.build("risla8/gateway:${GIT_COMMIT}", "-f ${dockerfileClient} ./deployment/docker/")
+	  def clientImage = docker.build("risla8/gateway:${GIT_COMMIT}", "-f . ./deployment/docker/Dockerfile.client")
 	  clientImage.push()		  
 	}
 	// sh """
