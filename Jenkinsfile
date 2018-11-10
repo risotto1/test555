@@ -15,11 +15,8 @@ pipeline {
 	docker { image "golang:alpine" }
       }
       steps {
-	sh "mkdir -p $GOPATH/src/github.com/GoingFast"
-	sh "ln -sf ${WORKSPACE} ${GOPATH}/src/github.com/GoingFast/test6"
-	sh "printenv"
 	sh "ls -la"
-	sh "go test ./..."
+	sh "go test ./... -mod=vendor"
       }
     }
     stage("Build") {
