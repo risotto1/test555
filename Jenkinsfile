@@ -14,9 +14,7 @@ pipeline {
       agent {
 	docker { image "golang:alpine" }
       }
-      when {
-	branch "staging"
-      }
+      
       environment {
 	CGO_ENABLED = "0"
       }
@@ -25,9 +23,6 @@ pipeline {
       }
     }
     stage("Build") {
-      when {
-	branch "staging"
-      }
       steps {
 	script {
 	  def clientImage = docker.build("risla8/client:${GIT_COMMIT}", ". -f ./deployment/docker/Dockerfile.client")
@@ -42,9 +37,6 @@ pipeline {
       }
     }
     stage("Deploy to staging") {
-      when {
-	branch "staging"
-      }
       steps {
 	sh "helm upgrade --install staging -n staging -f ./deployment/k8s/base.yaml -f ./deployment/k8s/values-staging.yaml ./deployment/k8s/app --set crud.image.tag=${GIT_COMMIT} --set gateway.image.tag=${GIT_COMMIT}"
       }
