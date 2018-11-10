@@ -21,6 +21,7 @@ pipeline {
     }
     stage("Build") {
       steps {
+	sh "printenv"
 	sh """
           docker build -t risla8/gateway . -f deployments/docker/Dockerfile.client
           docker tag risla8/gateway risla8/gateway:${GIT_COMMIT}
