@@ -17,7 +17,7 @@ func (m mockConns) Read(ctx context.Context, in *empty.Empty, opts ...grpc.CallO
 	return m.OnRead(ctx, in)
 }
 
-func stRead(t *testing.T) {
+func tRead(t *testing.T) {
 	// tests := []struct {
 	// 	wantBody   interface{}
 	// 	wantStatus int
