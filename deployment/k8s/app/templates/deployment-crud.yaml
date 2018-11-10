@@ -38,7 +38,7 @@ spec:
           command:
           - "/bin/sh"
           - "-c"
-          - "./crud"
+          - "./server"
           resources:
 {{ toYaml .Values.crud.resources | indent 12 }}
     {{- with .Values.crud.nodeSelector }}

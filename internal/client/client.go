@@ -45,7 +45,7 @@ func JSON(w http.ResponseWriter, code int, v interface{}) {
 func (s service) Read() http.HandlerFunc {
 	type res struct {
 		Err string        `json:"err,omitempty"`
-		Msg []*pb.Request `json:"msg,omitempty"`
+		Msg []*pb.Request `json:"message,omitempty"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		resp, err := s.c.crud.Read(r.Context(), &empty.Empty{})
