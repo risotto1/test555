@@ -14,9 +14,13 @@ pipeline {
       agent {
 	docker { image "golang:alpine" }
       }
+      environment {
+	GOOS = "linux"
+	CGO_ENABLED = "0"
+      }
       steps {
 	sh "ls -la"
-	sh "mkdir $GOCACHE/.cache"
+	sh "mkdir $WORKSPACE/.cache"
 	sh "go test ./... -mod=vendor"
       }
     }
