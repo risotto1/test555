@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"testing"
 
 	pb "github.com/GoingFast/test6/protobuf"
 	"github.com/golang/protobuf/ptypes/empty"
@@ -17,7 +16,7 @@ func (m mockConns) Read(ctx context.Context, in *empty.Empty, opts ...grpc.CallO
 	return m.OnRead(ctx, in)
 }
 
-func TestRead(t *testing.T) {
+func TestRead(t ting.T) {
 	// tests := []struct {
 	// 	wantBody   interface{}
 	// 	wantStatus int
