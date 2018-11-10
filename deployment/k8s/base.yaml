@@ -5,7 +5,7 @@ voyager: true
 
 crud:
   image:
-    repository: risla8/crud
+    repository: risla8/server
     pullPolicy: Always
   service:
     annotations: 
@@ -19,7 +19,7 @@ crud:
 
 gateway:
   image:
-    repository: risla8/gateway
+    repository: risla8/client
     pullPolicy: Always
 
   service:
