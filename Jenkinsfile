@@ -15,7 +15,6 @@ pipeline {
 	docker { image "golang:alpine" }
       }
       environment {
-	GOOS = "linux"
 	CGO_ENABLED = "0"
       }
       steps {

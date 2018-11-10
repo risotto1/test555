@@ -66,7 +66,7 @@ func TestRead(t *testing.T) {
 		}
 		ok := reflect.DeepEqual(got, test.wantBody)
 		if !ok {
-			t.Errorf("\ngot body: %T\nwant body: %T", got, test.wantBody)
+			t.Errorf("\ngot body: %v\nwant body: %v", got, test.wantBody)
 		}
 	}
 }
