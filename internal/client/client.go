@@ -29,7 +29,7 @@ func newConns() conns {
 }
 
 type service struct {
-	c conns
+	cs conns
 }
 
 func NewService() service {
@@ -42,13 +42,13 @@ func JSON(w http.ResponseWriter, code int, v interface{}) {
 	json.NewEncoder(w).Encode(&v)
 }
 
-func (s service) Read() http.HandlerFunc {
+func (svc service) Read() http.HandlerFunc {
 	type res struct {
-		Err string        `json:"err,omitempty"`
-		Msg []*pb.Request `json:"message,omitempty"`
+		Err  string        `json:"err,omitempty"`
+		Data []*pb.Request `json:"data,omitempty"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
-		resp, err := s.c.crud.Read(r.Context(), &empty.Empty{})
+		resp, err := svc.cs.crud.Read(r.Context(), &empty.Empty{})
 		if err != nil {
 			JSON(w, 500, res{Err: err.Error()})
 			return
@@ -58,7 +58,17 @@ func (s service) Read() http.HandlerFunc {
 			return
 		}
 
-		resp.Data = append(resp.Data, &pb.Request{Message: fmt.Sprintf("%v", os.Getenv("HOSTNAME"))})
-		JSON(w, 200, res{Msg: resp.Data})
+		JSON(w, 200, res{Data: resp.Data})
+	}
+}
+
+func (svc service) Hostname() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		res, err := svc.cs.crud.Hostname(r.Context(), &empty.Empty{})
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+		w.Write([]byte(fmt.Sprintf("Server (GRPC): %s\nClient (HTTP): %s", res.Hostname, os.Getenv("HOSTNAME"))))
 	}
 }

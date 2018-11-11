@@ -24,10 +24,10 @@ type inmemRepo struct {
 func newInmemRepo() *inmemRepo {
 	return &inmemRepo{
 		rs: map[string]*pb.Request{
-			"1": &pb.Request{Message: os.Getenv("HOSTNAME")},
-			"2": &pb.Request{Message: "ba"},
-			"3": &pb.Request{Message: "ccaddff"},
-			"4": &pb.Request{Message: "fgh"},
+			"1": &pb.Request{Message: "random1"},
+			"2": &pb.Request{Message: "random2"},
+			"3": &pb.Request{Message: "random3"},
+			"4": &pb.Request{Message: "random4"},
 		},
 	}
 }
@@ -120,4 +120,8 @@ func (s service) Read(ctx context.Context, _ *empty.Empty) (*pb.ReadResponse, er
 		return nil, err
 	}
 	return &pb.ReadResponse{Data: r}, nil
+}
+
+func (s service) Hostname(ctx context.Context, _ *empty.Empty) (*pb.HostnameResponse, error) {
+	return &pb.HostnameResponse{Hostname: os.Getenv("HOSTNAME")}, nil
 }

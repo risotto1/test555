@@ -6,11 +6,16 @@ package crud;
 
 service CRUDService {
   rpc Read(google.protobuf.Empty) returns (ReadResponse) {};
+  rpc Hostname(google.protobuf.Empty) returns (HostnameResponse) {};
 };
+
+message HostnameResponse {
+  string hostname = 1;
+}
 
 message Request {
   string message = 1;
-}
+};
 
 message ReadResponse {
   repeated Request data = 1;
