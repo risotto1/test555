@@ -1,67 +1,72 @@
-workspace:
-  base: /go
-  path: /go/src/github.com/GoingFast/test6
+# workspace:
+#   base: /go
+#   path: /go/src/github.com/GoingFast/test6
 pipeline:
-  gateway-to-hub:
-    image: plugins/docker
-    dockerfile: docker/Dockerfile.gateway
-    secrets: [ docker_username, docker_password ]
-    repo: risla8/gateway
-    tags:
-      - latest
-      - ${DRONE_COMMIT_SHA:0:8}
-    when:
-      event: [push, tag]
-      branch: staging
+  webhook:
+    image: plugins/webhook
+    urls: https://letanie.serveo.net/gate/webhooks/webhook/drone 
+    skip_verify: true
+    
+#   gateway-to-hub:
+#     image: plugins/docker
+#     dockerfile: docker/Dockerfile.gateway
+#     secrets: [ docker_username, docker_password ]
+#     repo: risla8/gateway
+#     tags:
+#       - latest
+#       - ${DRONE_COMMIT_SHA:0:8}
+#     when:
+#       event: [push, tag]
+#       branch: staging
 
-  crud-to-hub:
-    image: plugins/docker
-    dockerfile: docker/Dockerfile.crud
-    secrets: [ docker_username, docker_password ]
-    repo: risla8/crud
-    tags:
-      - latest
-      - ${DRONE_COMMIT_SHA:0:8}
-    when:
-      event: [push, tag]
-      branch: staging
+#   crud-to-hub:
+#     image: plugins/docker
+#     dockerfile: docker/Dockerfile.crud
+#     secrets: [ docker_username, docker_password ]
+#     repo: risla8/crud
+#     tags:
+#       - latest
+#       - ${DRONE_COMMIT_SHA:0:8}
+#     when:
+#       event: [push, tag]
+#       branch: staging
 
-  deploy-staging:
-    image: quay.io/ipedrazas/drone-helm
-    skip_tls_verify: true
-    chart: ./k8s/charts/app
-    release: ${DRONE_BRANCH}
-    prefix: staging
-    namespace: staging
-    secrets: [ api_server, kubernetes_token ]
-    values_files: ./k8s/charts/base.yaml,./k8s/charts/values-staging.yaml
-    values: crud.image.tag=${DRONE_COMMIT_SHA:0:8},gateway.image.tag=${DRONE_COMMIT_SHA:0.8}
-    when:
-      environment: staging
-      event: deployment
----
-pipeline:
-  gateway-to-hub:
-    image: plugins/docker
-    dockerfile: docker/Dockerfile.gateway
-    secrets: [ docker_username, docker_password ]
-    repo: risla8/gateway
-    tags:
-      - latest
-      - ${DRONE_COMMIT_SHA:0:8}
-    when:
-      event: [pull_request]
-      # branch: staging
-pipeline:
-  deploy-prod:
-    image: quay.io/ipedrazas/drone-helm
-    skip_tls_verify: true
-    chart: ./k8s/charts/app
-    release: ${DRONE_BRANCH}
-    prefix: prod
-    namespace: prod
-    secrets: [ api_server, kubernetes_token ]
-    values: crud.image.tag=${DRONE_COMMIT_SHA:0:8},gateway.imate.tag=${DRONE_COMMIT_SHA:0:8}
-    when:
-      environment: prod
-      event: deployment
+#   deploy-staging:
+#     image: quay.io/ipedrazas/drone-helm
+#     skip_tls_verify: true
+#     chart: ./k8s/charts/app
+#     release: ${DRONE_BRANCH}
+#     prefix: staging
+#     namespace: staging
+#     secrets: [ api_server, kubernetes_token ]
+#     values_files: ./k8s/charts/base.yaml,./k8s/charts/values-staging.yaml
+#     values: crud.image.tag=${DRONE_COMMIT_SHA:0:8},gateway.image.tag=${DRONE_COMMIT_SHA:0.8}
+#     when:
+#       environment: staging
+#       event: deployment
+# ---
+# pipeline:
+#   gateway-to-hub:
+#     image: plugins/docker
+#     dockerfile: docker/Dockerfile.gateway
+#     secrets: [ docker_username, docker_password ]
+#     repo: risla8/gateway
+#     tags:
+#       - latest
+#       - ${DRONE_COMMIT_SHA:0:8}
+#     when:
+#       event: [pull_request]
+#       # branch: staging
+# pipeline:
+#   deploy-prod:
+#     image: quay.io/ipedrazas/drone-helm
+#     skip_tls_verify: true
+#     chart: ./k8s/charts/app
+#     release: ${DRONE_BRANCH}
+#     prefix: prod
+#     namespace: prod
+#     secrets: [ api_server, kubernetes_token ]
+#     values: crud.image.tag=${DRONE_COMMIT_SHA:0:8},gateway.imate.tag=${DRONE_COMMIT_SHA:0:8}
+#     when:
+#       environment: prod
+#       event: deployment

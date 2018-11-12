@@ -1,0 +1,41 @@
+# Default values for concourse.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: concourse/concourse
+  tag: latest
+  pullPolicy: IfNotPresent
+
+concourse:
+  web:
+    replicas: 1
+    nameOverride: ""
+    port: 8080
+    tsa:
+      port: 2222
+    auth:
+      main:
+        localUser: "admin"
+        github:
+          user: "GoingFast"
+          org:
+    service:
+      type: NodePort
+    nodeSelector: {}
+    tolerations: []
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+    affinity: {}
+
+postgresql:
+  enabled: true
+  postgresDatabase: concourse
+  postgresUser: concourse
+  postgresPassword: concourse
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 8Gi

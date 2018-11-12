@@ -1,0 +1,111 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ include "concourse.web.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "concourse.name" . }}
+    helm.sh/chart: {{ include "concourse.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.concourse.web.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "concourse.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "concourse.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      volumes:
+        - name: keys
+          secret:
+            secretName: {{ include "concourse.concourse.fullname" .}}
+            defaultMode: 0400
+            items:
+              - key: host-key
+                path: host_key
+              - key: session-signing-key
+                path: session_signing_key
+              - key: worker-key-pub
+                path: worker_key_pub
+      containers:
+        - name: {{ include "concourse.web.fullname" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["web"]
+          volumes:
+            - name: keys
+              mountPath: /keys
+              readOnly: true
+          env:
+            - name: CONCOURSE_SESSION_SIGNING_KEY
+              value: /keys/session_signing_key
+            - name: CONCOURSE_TSA_HOST_KEY
+              value: /keys/host_key
+            - name: CONCOURSE_TSA_AUTHORIZED_KEYS
+              value: /keys/worker_key_pub
+            - name: CONCOURSE_TSA_BIND_PORT
+              value: {{ .Values.concourse.web.tsa.port | quote }}
+            - name: CONCOURSE_GITHUB_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "concourse.concourse.fullname" .}}
+                  key: github-client-id
+            - name: CONCOURSE_GITHUB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "concourse.concourse.fullname" .}}
+                  key: github-client-secret
+            - name: CONCOURSE_MAIN_TEAM_LOCAL_USER
+              value: {{ .Values.concourse.web.auth.main.localUser | quote }}
+            - name: CONCOURSE_MAIN_TEAM_GITHUB_USER
+              value: {{ .Values.concourse.web.auth.main.github.user | quote }}
+            - name: CONCOURSE_MAIN_TEAM_GITHUB_ORG
+              value: {{ .Values.concourse.web.auth.main.github.org | quote }}
+            - name: CONCOURSE_POSTGRES_HOST
+              value: {{ include "concourse.postgresql.fullname" . }}
+            - name: CONCOURSE_POSTGRES_USER
+              value: {{ .Values.postgresql.postgresUser | quote}}
+            - name: CONCOURSE_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "concourse.postgresql.fullname" . }}
+                  key: postgres-password
+            - name: CONCOURSE_POSTGRES_DATABASE
+              value: {{ .Values.postgresql.postgresDatabase | quote }}
+          ports:
+            - name: atc
+              containerPort: {{ .Values.concourse.web.port }}
+              protocol: TCP
+            - name: tsa
+              containerPort: {{ .Values.concourse.web.tsa.port}}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: atc
+            initialDelaySeconds: 120
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: atc
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+          resources:
+{{ toYaml .Values.concourse.web.resources | indent 12 }}
+    {{- with .Values.concourse.web.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.concourse.web.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.concourse.web.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

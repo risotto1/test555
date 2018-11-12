@@ -1,0 +1,135 @@
+---
+groups:
+  - name: production
+    jobs:
+      - job-prod-tests
+
+  - name: staging
+    jobs:
+      - job-staging-tests
+      - job-staging-build
+      - job-staging-deploy
+
+resource_types:
+  - name: helm
+    type: docker-image
+    source:
+      repository: linkyard/concourse-helm-resource
+      
+resources:
+  - name: src-master
+    type: git
+    source:
+      uri: https://github.com/risotto1/test555.git
+      branch: master
+      disable_ci_skip: true
+
+  - name: src-staging
+    type: git
+    source:
+      uri: https://github.com/risotto1/test555.git
+      branch: staging
+      disable_ci_skip: true
+
+  - name: server-build-push
+    type: docker-image
+    source:
+      repository: risla8/server
+      username: risla8
+      password: lol11lol11
+
+  - name: client-build-push
+    type: docker-image
+    source:
+      repository: risla8/client
+      username: risla8
+      password: lol11lol11
+
+  - name: kubernetes
+    type: helm
+    source:
+      cluster_url: https://192.168.99.101:30039
+      cluster_ca: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM1ekNDQWMrZ0F3SUJBZ0lCQVRBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwdGFXNXAKYTNWaVpVTkJNQjRYRFRFNE1UQXlPREl6TWpFeU1Gb1hEVEk0TVRBeU5qSXpNakV5TUZvd0ZURVRNQkVHQTFVRQpBeE1LYldsdWFXdDFZbVZEUVRDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTW1lCkJkRkNmdkN3VXVrUXRocUNSV3ZsQWtlblRsSkhlNUY1WWtQRlQ4ZzI2TzdzUVFIaXYreUZFU3Y5bzhYQUFiaWkKVHI1R2xnMXIvSDAwQm1Mc25DUFJNNjBNNTZqVjBrM1ZHa0tRZUF6djlYRVo0K016bTNtaWx1TnpKTGhPQ0NyaApOU21vQU9Ub3dGamRjYUdheGlvQ0kvOGVIRlhMcTNJVkJGaE9jLy9ENzNLRjNxY2lIeUFWTFl1QnNKVFVZNW4zCm9WSjlObGdWUEFRUjl2TDZDSDVHTlV5d1lTZDFlREpDcFdGaW54alRKNTNtZzlqRzhYaFVGZ3ArSzUxMXoxYmIKYnVGd0xrRzFvcXZ5ajZZLzdUV3IwTWRRRWs0L3lKcEpUOW13UUxsZE9RNnR1TnUwUVdyRVRWRFdOb1ViakRGNQoxZTBlS2dZOFRxZC9WUkRjRXBrQ0F3RUFBYU5DTUVBd0RnWURWUjBQQVFIL0JBUURBZ0trTUIwR0ExVWRKUVFXCk1CUUdDQ3NHQVFVRkJ3TUNCZ2dyQmdFRkJRY0RBVEFQQmdOVkhSTUJBZjhFQlRBREFRSC9NQTBHQ1NxR1NJYjMKRFFFQkN3VUFBNElCQVFDVU5ILzk0Q3Q4N2RhNGxpcHpnelZuYlVFNlo3bUJMakpHVVNzMFBuUzVhSUVIaG85TQorU0hsazBKc29CSTc2bXNxNG1zczRoNXJveFZkd2E0cDRaWDkwUnVVZk9TZlJBMXYwWGRaY1FYM2RhWDhWRDBNCmhibC8rNXBac3NPaXpUVW9keVoveEhqNm9nOVZ4bFNFNWNiMm5hNUkvZGQwWmI5MDIvbkh6NUNzZ004NjNYNXUKTHdaK2JsNGxHSzB4dDFnVzErRTE0cU5FOExjNVV0U3lodWM5TkZ1bFcxNGRMOTlwTG9VUk5OdklHUHlSVnNYMwpTV3BMRy9Xa2hIRGQyYzVsRVpPZEcrQng0c2szTzZkZXAyUXZSODQ4MzJHQkdvSFk0L0h5TiswQ2Q4TWRQWTNhCnBnakNJTWhRYzBIV1BOVVlLUTJ4emFPSG1sbEVyaml2ZldLRgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+      token: eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJ0aWxsZXItY2xpZW50LXRva2VuLXpoNTR4Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6InRpbGxlci1jbGllbnQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIwMWMxZWQyMC1lNTc3LTExZTgtOWE0OC0wODAwMjcwNzVkZmMiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06dGlsbGVyLWNsaWVudCJ9.MxGLnvEKCGBcxGiS03bfgmM3hFdJ1MhH1iv2j7jXCUPDqUVL3J0-C6HztGni23ITRX4sKMmoIWoxY7xlM8O2sDZYPtOPJJXwTvGkcvMz6qchf2uwYEY9qhBHS5ueXi0Wn699fUC3h8rAIy_W2he-7VzRPaqciHziEad5KKjPPHAp-Braq7vtelVrJs6AX_WOF4sLTmojuZWqdlyH0xeGDz8wrRQqXCnvChAAIv6JdxNbPooB5v2Q5MDu4SGdF8mz2HrEsP63mxzn13d6Z3Yg-hBLnPGXBcvLcbz18p-_LURVFlxl_ygcOkvOS6FZgDJnzp7sCeLQCCY7nd59FUidyA
+      
+jobs:
+  - name: job-prod-tests
+    public: true
+    plan:
+      - get: src-master
+        trigger: true
+      - task: unit-tests
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: golang
+          inputs:
+            - name: src-master
+          run:
+            path: /bin/sh
+            args:
+            - -exc
+            - |
+              cd src-master && go test ./... -mod=vendor
+
+  - name: job-staging-tests
+    public: true
+    plan:
+      - get: src-staging
+        trigger: true
+      - task: unit-tests
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: golang
+          inputs:
+            - name: src-staging
+          run:
+            path: /bin/sh
+            args:
+            - -exc
+            - |
+              cd src-staging && go test ./... -mod=vendor
+
+  - name: job-staging-build
+    plan:
+      - get: src-staging
+        trigger: true
+        passed: [job-staging-tests]
+      - put: server-build-push
+        params:
+          build: src-staging/deployments/docker/Dockerfile.server
+          tag_file: src-staging/.git/short_ref
+          tag_as_latest: true
+        get_params:
+          skip_download: true
+      - put: client-build-push
+        params:
+          build: src-staging/deployments/docker/Dockerfile.client
+          tag_file: src-staging/.git/short_ref
+          tag_as_latest: true
+        get_params:
+          skip_download: true
+
+  - name: job-staging-deploy
+    plan:
+      - get: src-staging
+        trigger: true
+        passed: [job-staging-build]
+      - put: kubernetes
+        params:
+          chart: staging/deployment/k8s/app
+          values:
+            - src-staging/deployment/k8s/base.yaml
+            - src-staging/deployment/k8s/values-staging.yaml
+          namespace: staging
+          release: staging
+          override_values:
+            - key: crud.image.tag
+              path: src-staging/.git/short_ref
+            - key: gateway.image.tag
+              path: src-staging/.git/short_ref

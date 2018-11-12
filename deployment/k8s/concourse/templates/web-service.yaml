@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "concourse.web.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "concourse.name" . }}
+    helm.sh/chart: {{ include "concourse.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: {{ .Values.concourse.web.type }}
+  ports:
+    - name: atc
+      targetPort: atc
+      port: {{ .Values.concourse.web.port }}
+      protocol: TCP
+      nodePort: 30202
+    - name: http
+      targetPort: tsa
+      port: {{ .Values.concourse.web.tsa.port }}
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: {{ include "concourse.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
